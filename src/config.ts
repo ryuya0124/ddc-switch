@@ -10,7 +10,8 @@ export const STATE_PATH = join(STATE_DIR, "state.json");
 export interface Config {
   display: string;
   inputs: Record<string, number>;
-  toggle: [string, string];
+  /** トグルで循環させる入力名のリスト (2 つ以上) */
+  toggle: [string, string, ...string[]];
   m1ddcPath: string | null;
 }
 
@@ -21,7 +22,7 @@ export const DEFAULT_CONFIG: Config = {
     hdmi: 17,
     dp: 15,
   },
-  toggle: ["type-c", "hdmi"],
+  toggle: ["type-c", "hdmi", "dp"],
   m1ddcPath: null,
 };
 
@@ -46,8 +47,8 @@ export async function loadConfig(): Promise<Config> {
     ...user,
     inputs: user.inputs ?? DEFAULT_CONFIG.inputs,
     toggle:
-      Array.isArray(toggle) && toggle.length === 2 && toggle.every((t) => typeof t === "string")
-        ? [toggle[0], toggle[1]]
+      Array.isArray(toggle) && toggle.length >= 2 && toggle.every((t) => typeof t === "string")
+        ? (toggle as [string, string, ...string[]])
         : DEFAULT_CONFIG.toggle,
   };
 }

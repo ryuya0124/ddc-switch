@@ -142,12 +142,18 @@ export class MonitorService {
     }
   }
 
-  /** 現在の入力を、指定した2つの論理名の間で往復させる。 */
-  async toggleInput(a: string, b: string): Promise<SwitchResult> {
-    const valueA = this.resolveInput(a);
+  /**
+   * toggle リストの中で現在の入力の次へ進む。
+   * リストにない値のときは先頭へ戻る。
+   */
+  async toggleInput(...cycle: string[]): Promise<SwitchResult> {
+    const values = cycle.map((name) => this.resolveInput(name));
     const display = await this.display();
     const current = await this.#ddc.getInput(display.id);
-    return this.switchInput(current === valueA ? b : a);
+    const idx = values.indexOf(current);
+    // 見つかれば次、見つからなければ先頭
+    const next = cycle[(idx + 1) % cycle.length]!;
+    return this.switchInput(next);
   }
 
   async setLuminance(value: number): Promise<number> {

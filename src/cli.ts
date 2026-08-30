@@ -121,8 +121,9 @@ export async function runCli(argv: string[]): Promise<number> {
       return 0;
     }
     case "toggle": {
-      const [a, b] = config.toggle;
-      const result = await service.toggleInput(args[1] ?? a, args[2] ?? b);
+      // 引数があれば上書き、なければ config.toggle をそのまま使う
+      const cycle = args.length > 1 ? args.slice(1) : config.toggle;
+      const result = await service.toggleInput(...cycle);
       emit(result, formatSwitch(result));
       return 0;
     }
